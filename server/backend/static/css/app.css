@@ -1,0 +1,18 @@
+.shade{
+    border: 1px solid;
+    padding: 10px;
+    box-shadow: 5px 10px 15px #888888;
+  }
+
+  .fadeout {
+    opacity: 1;
+    -webkit-transition: opacity 1000ms linear;
+    transition: opacity 1000ms linear;
+}
+
+.vid{
+  position: fixed;
+  right: 0;
+  
+
+}

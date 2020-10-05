@@ -1,0 +1,79 @@
+
+{% extends 'layouts/layout.html' %}
+
+
+
+{% block body %}
+<style>
+
+
+.vid{
+  position: fixed;
+  right: 0;
+  
+
+}
+
+h1 {
+  color: white;
+  text-shadow: 1.5px 1.5px 5px #000000;
+}
+h2 {
+  color: white;
+  text-shadow: 0.75px 0.75px 1.5px #000000;
+}
+
+#info {
+	position: absolute;
+	top: 10px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+}
+
+</style>
+
+
+  
+
+
+
+
+<section class="hero  is-large">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns">
+          <div class="column fadeout" style="text-align: center;"> 
+             <h1 class="title is-size-1 fadeIndex "style="padding-left: 2rem; ">
+                Welcome to NodeShare.io
+            </h1>
+          
+            <h2 class="subtitle" style="padding-left: 4em; padding-top: 0.2rem;">
+                Where <strong> Blender </strong>nodes can be <span class="is-italic"><strong>shared</strong>! </span><br>
+              <span class="is-size-6">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
+            </h2>
+            
+              
+            
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+
+  
+    document.querySelector('.fadeIndex').addEventListener("click", function(e){
+        console.log("clicked");
+        setTimeout(function(){window.location.replace("{{url_for('site.nodes')}}");}, 1100);
+        
+    });
+    
+    </script>
+ 
+
+
+{% endblock %}

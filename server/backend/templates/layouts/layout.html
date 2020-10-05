@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <title> NodeShare.io </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <!-- WebM muted autoplay  -->
+    <script src="{{url_for('static', filename='/js/ready.js')}}"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@creativebulma/bulma-tooltip@1.2.0/dist/bulma-tooltip.css">
+    <!-- ClipboardJS -->
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{url_for('static', filename='css/app.css')}}" >
+  </head>
+
+  <body >
+
+    {% include 'includes/_navbar.html' %}
+
+    {% include 'includes/_messages.html' %}
+
+    <div class="container" >
+      <section >
+        <video class="vid video-play" >
+          <source src="{{url_for('static', filename='media/nodeshare.webm')}}" type="video/ogg">
+          Your browser does not support HTML video.
+        </video>
+      </section>
+    {% block body %}{% endblock %}
+    </div>
+    {% include 'includes/_footer.html' %}
+  </body>
+</html>

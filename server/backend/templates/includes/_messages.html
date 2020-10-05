@@ -1,0 +1,54 @@
+
+ {% with messages = get_flashed_messages(with_categories=true) %}
+ {% if messages %}
+
+ 
+      {% for category, message in messages %}
+      <article class="message is-{{ category }} msgfade">
+      <div class="message-body">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </article>
+    {% endif %}
+  {% endwith %}
+  
+
+
+  {% if error %}
+  
+    
+  {% endif %}
+  
+  {% if msg %}
+  <article class="message is-danger">
+    <div class="message-body">
+      {{msg}}
+    </div>
+  </article>
+  {% endif %}
+
+
+  
+
+
+
+<!-- OLD -->
+<!-- 
+<div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  </div>
+  
+  {% if error %}
+    <div class='alter alert-danger'>{{error}}</div>
+  {% endif %}
+  
+  {% if msg %}
+    <div class='alter alert-danger'>{{msg}}</div>
+  {% endif %} -->

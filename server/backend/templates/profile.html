@@ -1,0 +1,116 @@
+
+{% extends 'layouts/layout.html' %}
+
+
+
+{% block body %}
+
+<style>
+
+
+
+.loading:after {
+    color: red;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
+</style>
+<script>
+  new ClipboardJS('.btn');
+</script>
+    <section class="container" style="padding-top: 2rem;">
+
+
+        <div class="card shade">
+            <header class="card-header">
+              <p class="card-header-title">
+                 {{user.username}}'s Submitted Nodes 
+              </p>
+
+            </header>
+            
+            
+            <div class="card-content"> 
+              
+                {% for node in user.nodes %}
+                
+              <div class="content">
+                <div class="columns shade">
+                  <div class="column">
+                      <figure lass="image is-128x128">
+                        <a href="{{url_for('site.node', id=node.id)}}">
+                          <video class="video-play is-128x128" style="width: 100%;">
+                            <source src="{{url_for('static', filename=node.sample_path)}}" type="video/ogg">
+                            Your browser does not support HTML video.
+                            </video>
+                        </a>
+                      </figure>
+                  </div>
+                    <div class="column">
+
+                        <div class="card">
+                          <header class="card-header">
+                            <p class="card-header-title">
+                              <a href="{{ url_for('site.node', id=node.id) }}">
+                                {{ node.title }}
+                              
+                                {% if node.approved %}
+                                <strong>  <i class="fas fa-thumbs-up" style="color: green;"></i>  </strong>
+                                {% else %}
+                                  <strong class="loading" > </strong>
+                                {% endif %}
+                              
+                              </a>
+                            </p>
+                          </header>
+                          <div class="card-content">
+                            <div class="content">
+                               {{ node.description }} 
+
+                              
+                              <br>
+
+                              <small class="is-italic">Timestamp: {{node.timestamp}} </small> 
+                              <textarea class="textarea" readonly id="nodeText{{node.id | string}}" >{{node.data}} </textarea>
+                              <button class="btn button" data-clipboard-target="#nodeText{{node.id | string}}">
+                                Copy Node Text
+                            </button>
+                          
+                            </div>
+                          </div>
+                        </div>
+
+                    </div>
+
+
+                  </div>
+              </div>
+            <hr>
+              {% endfor %}
+            </div>
+            
+            
+            <footer class="card-footer">
+
+
+            </footer>
+          </div>
+    </section>
+{% endblock %}

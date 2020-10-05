@@ -1,0 +1,15 @@
+dist/
+build/
+node_modules/
+npm-debug.log
+.DS_Store
+venv/
+__pycache__/
+*.pyc
+__pycache__/
+.vscode/
+*.env
+*.sock
+nodeshare.ini
+update.py
+notes.txt

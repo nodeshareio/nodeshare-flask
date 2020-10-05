@@ -1,0 +1,25 @@
+{% extends 'layouts/layout.html' %}
+
+{% block body %}
+
+<section style="padding-top: 2rem;">
+    <form action="" method="post">
+        <div class="card shade">
+            {{ form.hidden_tag() }}
+            <div class="card-header-title">
+                Send New User Request:
+            </div>
+            <div class="card-content">
+                <div class="field">
+                    <label class="label">{{ form.email.label }}</label>
+                    {{ form.email(size=64, class="control") }}
+                </div>
+                <div class="field ">
+                        {{ form.submit(class="control") }}
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+{% endblock %}

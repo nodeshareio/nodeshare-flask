@@ -1,0 +1,3 @@
+Register for NodeShare Beta!
+
+{{ url_for('auth.secure_register', token=token, _external=True) }}

@@ -1,0 +1,50 @@
+
+{% extends 'layouts/layout.html' %}
+
+
+
+{% block body %}
+
+<section style="padding-top: 2rem;">
+
+    <div class="card shade">
+        <header class="card-header">
+            <p class="card-header-title">
+Submit Node Text </p> 
+
+</header>
+    <a style="padding: 1rem;" href="https://github.com/wildiness/NodeSharer">Instructions here </a>
+
+    <div class="card-content" style="text-align: left;">
+
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.title.label }}<br>
+                {{ form.title(size=64, class="control") }}<br>
+                {% for error in form.title.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.description.label }}<br>
+                {{ form.description(size=64, class="control") }}<br>
+                {% for error in form.description.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.data.label }}<br>
+                {{ form.data(class="control", style="width:80%;") }}<br>
+                {% for error in form.data.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ form.submit(class="control") }}</p>
+        </form>  
+
+    </div>
+
+</div>
+</section>
+{% endblock %}

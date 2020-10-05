@@ -1,0 +1,91 @@
+<script src="{{url_for('static', filename='/js/burger.js')}}"></script>
+
+
+
+
+<nav class="navbar is-black" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="{{ url_for('site.nodes') }}">
+      <img src="{{url_for('static', filename='/img/nav_logo.png')}}" width="200" height="150">
+    </a>
+
+    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="{{ url_for('site.index') }}">
+        Home
+      </a>
+
+      <a class="navbar-item" href="{{ url_for('site.nodes') }}">
+        Browse
+      </a>
+      {% if current_user.is_authenticated %}
+      {% if 'ADMIN' in current_user.get_roles() %}
+        
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link" href="{{ url_for('admin.index') }}">
+          Admin Settings
+        </a>
+        
+        <div class="navbar-dropdown">
+        
+          <a class="navbar-item" href="{{ url_for('auth.new_user_request') }}">
+            Send Invite
+          </a>
+          <a class="navbar-item" href="{{ url_for('admin.approve_nodes') }}">
+            Approve Nodes
+          </a>
+          <hr class="navbar-divider">
+          <a class="navbar-item">
+            Report an issue
+          </a>
+        </div>
+      </div>
+
+       {% endif %}
+       
+       <a class="navbar-item" href="{{ url_for('site.submit_node') }}">
+         Submit Node
+        </a>
+        {% endif %}
+
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          <a class="button has-tooltip-arrow has-tooltip-bottom" href="https://github.com/wildiness/NodeSharer" data-tooltip="Node Sharer Add-On GitHub ">
+            <i class="fab fa-github fa-lg" ></i>
+          </a>
+          <a class="button is-light has-tooltip-arrow has-tooltip-bottom"  href="https://github.com/wildiness/NodeSharer/archive/master.zip" data-tooltip="Download Blender Add-On">
+           <strong> Get Add-On </strong>
+          </a>
+          
+          {% if current_user.is_authenticated %}
+          
+            <a class="button is-light" href="{{ url_for('site.profile', id=current_user.id) }}">
+             <strong> Profile</strong>
+            </a>
+            <a class="button is-dark" href="{{ url_for('auth.logout') }}">
+              Log Out
+            </a>
+          {% else %}
+            <a class="button is-light"href="{{ url_for('auth.register') }}">
+              <strong>Sign up</strong>
+            </a>
+            <a class="button is-dark" href="{{ url_for('auth.logout') }}">
+              Log in
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

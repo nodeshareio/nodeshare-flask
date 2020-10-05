@@ -1,0 +1,63 @@
+
+{% extends 'layouts/layout.html' %}
+
+
+
+{% block body %}
+
+<script>
+    new ClipboardJS('.btn');
+</script>
+
+<section style="padding-top: 2rem;">
+<div class="card" >
+    <article class="media">
+    <figure class="media-center ">
+        <p class="image is-128x128">
+            <video class="video-play is-640x480" style="width: 100%;">
+                <source src="{{url_for('static', filename=node.sample_path)}}" type="video/ogg">
+                Your browser does not support HTML video.
+                </video>
+        </p>
+      </figure>
+    <div class="media-content">
+      <div class="content">
+        <p>
+           <strong> {{node.title}}</strong> <span class="is-size-7"> by </span> <span class="is-size-6 is-italic"> {{node.creator}}</span>
+          
+           
+           <br>
+           {{node.description}}
+            <br>
+            
+            {% if node.approved or 'ADMIN' in current_user.get_roles() %}
+            <textarea class="textarea" readonly id="nodeText{{node.id | string}}">{{node.data}}</textarea>
+            <button class="btn button" data-clipboard-target="#nodeText{{node.id | string}}">
+                Copy Node Text
+            </button>
+            {% else %} <code> Data not yet approved </code> 
+            {% endif %}
+        </p>
+      </div>
+      <nav class="level is-mobile">
+        <div class="level-left">
+            {% if current_user.is_authenticated %}
+                {% if 'ADMIN' in current_user.get_roles() and not node.approved %}
+                <form action="{{ url_for('admin.approve_node', id=node.id) }}" method="POST" id="approvenode{{node.id | string}}"></form>
+            <button type="submit" class="button level-item" form="approvenode{{node.id | string}}" value="Submit">
+                <span class="icon is-small"><i id="approve" class="fas fa-check"></i></span>
+            </button>
+                {% endif %}
+            {% endif %}
+        </div>
+      </nav>
+    </div>
+    
+  </article>
+</div>
+
+</section>
+
+        
+
+{% endblock %}

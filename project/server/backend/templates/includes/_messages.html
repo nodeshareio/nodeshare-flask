@@ -1,0 +1,32 @@
+
+ {% with messages = get_flashed_messages(with_categories=true) %}
+ {% if messages %}
+
+ 
+      {% for category, message in messages %}
+      <article class="message is-{{ category }} fadeout">
+      <div class="message-body">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </article>
+    {% endif %}
+  {% endwith %}
+  
+
+
+  {% if error %}
+  
+    
+  {% endif %}
+  
+  {% if msg %}
+  <article class="message is-danger">
+    <div class="message-body">
+      {{msg}}
+    </div>
+  </article>
+  {% endif %}
+
+
+  

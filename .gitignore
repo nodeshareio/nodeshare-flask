@@ -13,3 +13,4 @@ __pycache__/
 nodeshare.ini
 update.py
 notes.txt
+migrations/

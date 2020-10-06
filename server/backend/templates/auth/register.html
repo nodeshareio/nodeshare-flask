@@ -15,7 +15,7 @@
 
                 <div class="field">
                     <label class="label">{{ form.username.label }}</label>
-                    {{ form.username(size=64, class="control") }}
+                    {{ form.username(class="control") }}
                     {% for error in form.username.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
@@ -23,7 +23,7 @@
 
                 <div class="field">
                     <label class="label">{{ form.email.label }}</label>
-                    {{ form.email(size=64, class="control") }}
+                    {{ form.email(class="control") }}
                     {% for error in form.email.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
@@ -31,7 +31,7 @@
 
                 <div class="field">
                     <label class="label"> {{ form.password.label }}</label>
-                    {{ form.password(size=32, class="control") }}
+                    {{ form.password(class="control") }}
                     {% for error in form.password.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}
@@ -40,7 +40,7 @@
 
                 <div class="field">
                     <label class="label"> {{ form.confirm.label }}</label>
-                    {{ form.confirm(size=32, class="control") }}
+                    {{ form.confirm(class="control") }}
                     {% for error in form.confirm.errors %}
                         <span style="color: red;">[{{ error }}]</span>
                     {% endfor %}

@@ -21,14 +21,14 @@ Submit Node Text </p>
             {{ form.hidden_tag() }}
             <p>
                 {{ form.title.label }}<br>
-                {{ form.title(size=64, class="control") }}<br>
+                {{ form.title(class="control") }}<br>
                 {% for error in form.title.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </p>
             <p>
                 {{ form.description.label }}<br>
-                {{ form.description(size=64, class="control") }}<br>
+                {{ form.description(class="control") }}<br>
                 {% for error in form.description.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}

@@ -32,6 +32,15 @@ h2 {
 	display:block;
 }
 
+.cpad{
+  padding-left: 4em; padding-top: 0.2rem;
+}
+
+@media only screen and (max-width: 600px) {
+  .cpad {
+    padding-left: 0rem; padding-top: 0.2rem;
+  }
+}
 </style>
 
 
@@ -45,11 +54,11 @@ h2 {
       <div class="container">
         <div class="columns">
           <div class="column fadeout" style="text-align: center;"> 
-             <h1 class="title is-size-1 fadeIndex "style="padding-left: 2rem; ">
+             <h1 class="title is-size-1 fadeIndex">
                 Welcome to NodeShare.io
             </h1>
           
-            <h2 class="subtitle" style="padding-left: 4em; padding-top: 0.2rem;">
+            <h2 class="subtitle has-text-centered-mobile cpad" >
                 Where <strong> Blender </strong>nodes can be <span class="is-italic"><strong>shared</strong>! </span><br>
               <span class="is-size-6">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
             </h2>

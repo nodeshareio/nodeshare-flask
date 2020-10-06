@@ -25,13 +25,14 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/app.css')}}" >
   </head>
 
+
   <body >
 
     {% include 'includes/_navbar.html' %}
 
     {% include 'includes/_messages.html' %}
 
-    <div class="container" >
+    <div class="container center" >
       <section >
         <video class="vid video-play" >
           <source src="{{url_for('static', filename='media/nodeshare.webm')}}" type="video/ogg">

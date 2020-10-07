@@ -30,7 +30,7 @@ ready(function(){
 
   if (document.querySelector('.fadeout')){
   document.querySelector('.fadeout').addEventListener("click", function(e){
-    var removeTarget = e.target.parentNode;
+    var removeTarget = e.target.closest('div');
     removeTarget.style.opacity = '0';
   });
 };

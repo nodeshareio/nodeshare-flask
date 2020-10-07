@@ -53,14 +53,14 @@ h2 {
     <div class="hero-body">
       <div class="container">
         <div class="columns">
-          <div class="column fadeout" style="text-align: center;"> 
-             <h1 class="title is-size-1 fadeIndex">
+          <div class="column fadeout fadeIndex" style="text-align: center;"> 
+             <h1 class="title is-size-1 forcefade">
                 Welcome to NodeShare.io
             </h1>
           
-            <h2 class="subtitle has-text-centered-mobile cpad" >
-                Where <strong> Blender </strong>nodes can be <span class="is-italic"><strong>shared</strong>! </span><br>
-              <span class="is-size-6">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
+            <h2 class="subtitle has-text-centered-mobile cpad forcefade" >
+                Where <strong> Blender </strong>nodes can be <span class="is-italic forcefade"><strong>shared</strong>! </span><br>
+              <span class="is-size-6 forcefade">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic ">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
             </h2>
             
               
@@ -76,7 +76,6 @@ h2 {
 
   
     document.querySelector('.fadeIndex').addEventListener("click", function(e){
-        console.log("clicked");
         setTimeout(function(){window.location.replace("{{url_for('site.nodes')}}");}, 1100);
         
     });

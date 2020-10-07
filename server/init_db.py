@@ -6,7 +6,6 @@ from backend.models import User, UserRoles, Role
 import sys
 
 
-
 def create_admin_role():
     print("Creating Admin Role")
     try:
@@ -19,6 +18,7 @@ def create_admin_role():
     except:
         print("Failure: Roles not created.")
         return False
+
 
 def main():
     with app.app_context():

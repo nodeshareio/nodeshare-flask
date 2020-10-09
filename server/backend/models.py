@@ -88,7 +88,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
             followers, (followers.c.followed_id == Node.user_id)).filter(
                 followers.c.follower_id == self.id)
         own = Node.query.filter_by(user_id=self.id)
-        return followed.union(own).order_by(Post.timestamp.desc()) 
+        return followed.union(own).order_by(Node.timestamp.desc()) 
 
     def to_dict(self, include_email=False):
         data = {

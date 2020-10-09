@@ -217,7 +217,7 @@ class Node(PaginatedAPIMixin, db.Model):
     comments = db.relationship('Comment', foreign_keys='Comment.node_id', backref='node', lazy='dynamic')
     approved = db.Column(db.Boolean, unique=False, default=False)
     sample_path = db.Column(db.String(250), unique=False)
-    likes = 
+
 
 
     def __repr__(self):

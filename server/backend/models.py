@@ -69,7 +69,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
 
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'{self.username}'
 
     def follow(self, user):
         if not self.is_following(user):

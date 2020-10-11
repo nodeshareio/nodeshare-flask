@@ -33,12 +33,72 @@ h2 {
 }
 
 .cpad{
-  padding-left: 4em; padding-top: 0.2rem;
+  padding-left: 4.5em; padding-top: 0.2rem;
 }
-
+.dpad{
+  padding-left: 5.3em; 
+}
+.anticpad{
+  padding-right:  4.5em;
+}
 @media only screen and (max-width: 600px) {
   .cpad {
     padding-left: 0rem; padding-top: 0.2rem;
+  }
+  .dpad {
+    padding-left: 0rem; 
+  }
+  .anticpad {
+    padding-right: 0rem;
+  }
+}
+
+.introjiggle{
+  animation: introshake 3s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+
+.jiggle:hover {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-0.5px, 0, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(1px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-2px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(2px, 0, 0);
+  }
+}
+@keyframes introshake {
+  10%, 90% {
+    transform: translate3d(0,-.5px, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(0, 1.5px, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(0,-3px, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(0, 3px, 0);
   }
 }
 </style>
@@ -53,18 +113,18 @@ h2 {
     <div class="hero-body">
       <div class="container">
         <div class="columns">
-          <div class="column fadeout fadeIndex" style="text-align: center;"> 
-             <h1 class="title is-size-1 forcefade">
+          <div class="column fadeout fadeIndex " style="text-align: center;"> 
+             <h1 class="jiggle  title is-size-1 forcefade ">
                 Welcome to NodeShare.io
             </h1>
           
             <h2 class="subtitle has-text-centered-mobile cpad forcefade" >
                 Where <strong> Blender </strong>nodes can be <span class="is-italic forcefade"><strong>shared</strong>! </span><br>
-              <span class="is-size-6 forcefade">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic ">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
-            </h2>
-            
-              
-            
+              <span class="is-size-6 forcefade dpad">  Powered by <a href="https://github.com/wildiness/NodeSharer"> <small class="is-italic ">Node sharer (Beta)  <i class="fab fa-github"></i>  </small> </a></span>
+           <br><br><br>
+           <div class='forcefade anticpad introjiggle jiggle'><i class="fas fa-arrow-circle-up"></i><small>Click to Browse</small><i class="fas fa-arrow-circle-up"></i></div>
+          </h2>
+          
           </div>
   
         </div>
@@ -79,7 +139,8 @@ h2 {
         setTimeout(function(){window.location.replace("{{url_for('site.nodes')}}");}, 1100);
         
     });
-    
+
+
     </script>
  
 

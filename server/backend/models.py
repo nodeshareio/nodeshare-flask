@@ -10,9 +10,7 @@ import base64
 import os
 
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+
 
 
 class PaginatedAPIMixin(object):
@@ -37,6 +35,17 @@ class PaginatedAPIMixin(object):
         }
         return data
 
+followers = db.Table(
+    'followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+# likes = db.Table(
+#     'likes',
+#     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('node_id', db.Integer, db.ForeignKey('node.id'))
+# )
 
 class User(PaginatedAPIMixin, UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +59,37 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     roles = db.relationship('Role', secondary='user_roles')
     comments = db.relationship('Comment', foreign_keys='Comment.author_id', backref='author', lazy='dynamic')
     nodes = db.relationship('Node', backref='creator', lazy='dynamic')
-    
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    notifications = db.relationship('Notification', backref='user',
+                                    lazy='dynamic')
+
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0            
+ 
+    def followed_nodes(self):
+        followed = Node.query.join(
+            followers, (followers.c.followed_id == Node.user_id)).filter(
+                followers.c.follower_id == self.id)
+        own = Node.query.filter_by(user_id=self.id)
+        return followed.union(own).order_by(Node.timestamp.desc()) 
+
     def to_dict(self, include_email=False):
         data = {
             'id': self.id,
@@ -69,14 +108,17 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
                 setattr(self, field, data[field])
         if new_user and 'password' in data:
             self.set_password(data['password'])
-   
-    
-    def __repr__(self):
-        return f'{self.username}'
+
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
         return Message.query.filter_by(recipient=self).filter(Message.timestamp > last_read_time).count()
+
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
 
     def set_password(self, password):
         self.password_hash = sha256_crypt.encrypt(password)
@@ -133,6 +175,11 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
             return str(self.roles)
 
 
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+
 class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
@@ -140,7 +187,7 @@ class Role(db.Model):
     def __repr__(self):
         return (self.name)
 
-# Association table
+# Association table - does this need to be a model?  No...
 class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
@@ -172,6 +219,7 @@ class Node(PaginatedAPIMixin, db.Model):
     sample_path = db.Column(db.String(250), unique=False)
 
 
+
     def __repr__(self):
         return f'Node ID: {self.id} \nTitle: {self.title} \nDescription: {self.description}'
 
@@ -191,3 +239,12 @@ class Node(PaginatedAPIMixin, db.Model):
                 setattr(self, key, data[key])
 
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))

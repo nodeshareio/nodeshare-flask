@@ -4,12 +4,13 @@
 
  
       {% for category, message in messages %}
-      <article class="message is-{{ category }} fadeout">
-      <div class="message-body">
+
+      <div class="notification is-light is-{{category}} fadeout forcefade">
+
         {{ message }}
       </div>
       {% endfor %}
-    </article>
+  
     {% endif %}
   {% endwith %}
   

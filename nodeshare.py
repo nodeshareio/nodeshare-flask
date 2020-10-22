@@ -210,7 +210,7 @@ class NodeShareioCopy(Operator):
         
         return {'FINISHED'}
 
-'''
+
 class NodeShareioShare(Operator):  
     
     bl_label = "Share Node Text to NodeShare.io"
@@ -234,7 +234,7 @@ class NodeShareioShare(Operator):
       
     return {'FINISHED'}
     
-'''    
+ 
 '''
 class OBJECT_MT_CustomMenu(bpy.types.Menu):
     bl_label = "Select"

@@ -44,20 +44,20 @@ def create_user():
     return response
 
 
-@api.route('/users/delete',  methods=['POST'])
-@token_auth.login_required
-def delete_user():
-    data = json.loads(request.data) or {'error: no data'}
-    if 'username' not in data:
-        return bad_request('please provide username')
-    processed_data = (data["username"])
-    user = User.query.filter_by(username=processed_data).first()
-    db.session.delete(user)
-    db.session.commit()
-    response = jsonify(user.to_dict())
-    response.status_code = 200
-    response.headers['Location'] = url_for('api.get_user', id=user.id)
-    return response
+# @api.route('/users/delete',  methods=['POST'])
+# @token_auth.login_required
+# def delete_user():
+#     data = json.loads(request.data) or {'error: no data'}
+#     if 'username' not in data:
+#         return bad_request('please provide username')
+#     processed_data = (data["username"])
+#     user = User.query.filter_by(username=processed_data).first()
+#     db.session.delete(user)
+#     db.session.commit()
+#     response = jsonify(user.to_dict())
+#     response.status_code = 200
+#     response.headers['Location'] = url_for('api.get_user', id=user.id)
+#     return response
    
 
 

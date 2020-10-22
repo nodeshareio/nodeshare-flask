@@ -1,9 +1,9 @@
 bl_info = {
-    "name": "Add-on Template",
+    "name": "NodeShare.io",
     "description": "",
-    "author": "p2or",
+    "author": "hansford.dev",
     "version": (0, 0, 3),
-    "blender": (2, 80, 0),
+    "blender": (2, 90, 1),
     "location": "3D View > NS.io",
     "warning": "", # used for warning icon and text in addons panel
     "wiki_url": "",
@@ -41,6 +41,11 @@ class MyProperties(PropertyGroup):
     logged_in: BoolProperty(
         name="Login",
         description="Auth Bool",
+        default = False
+        )
+    have_text: BoolProperty(
+        name="NodeText",
+        description="Node Text Check",
         default = False
         )
         
@@ -118,9 +123,17 @@ class MyProperties(PropertyGroup):
         )
 
 # ------------------------------------------------------------------------
-#    Operators
+#    Auth Operators
 # ------------------------------------------------------------------------
 
+def ShowMessageBox(message = "", title = "Message Box", icon = 'INFO'):
+
+    def draw(self, context):
+        self.layout.label(text=message)
+        
+
+    bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+        
     
 class NodeShareioLogin(Operator):
     bl_label = "Login"
@@ -146,21 +159,11 @@ class NodeShareioLogin(Operator):
             nodeshare.logged_in = True
         except:
             print('[  LOG  ]  Auth Error')
+            
           
         return {'FINISHED'}
 
-class NodeShareioMain(Operator):
-    bl_label = "Upload NoderSharer Text"
-    bl_idname = "wm.nodeshareio_main"
-    
-    def execute(self, context):
-        scene = context.scene
-        nodeshare = scene.my_tool
-        nodesharer_string = bpy.ops.node.ns_copy_material()
-        # print the values to the console
-        print(f"Node Sharerer Text String: \n{nodesharer_string}")
-          
-        return {'FINISHED'}
+
 
 class NodeShareioLogout(Operator):
     bl_label = "Logout"
@@ -178,9 +181,60 @@ class NodeShareioLogout(Operator):
         return {'FINISHED'}
 
 # ------------------------------------------------------------------------
-#    Menus
+#    Main Operator
 # ------------------------------------------------------------------------
 
+class NodeShareioCopy(Operator):  
+    
+    bl_label = "Copy Node Text"
+    bl_idname = "wm.nodeshareio_main"
+    
+    def execute(self, context):
+        scene = context.scene
+        nodeshare = scene.my_tool
+
+        
+        try:
+            nodesharer_string = scene.ns_string
+            print(f"Node Sharerer Text String: \n{nodesharer_string}")
+            nodeshare.have_text = True
+            print("+++++++++++++++++++++++++++++++++++++++")
+            print(nodeshare.have_text)
+            print("+++++++++++++++++++++++++++++++++++++++")
+            
+            text = "Node Text Updated" if nodeshare.have_text else "Node Text Captured" 
+            ShowMessageBox(text, "Success!") 
+            
+        except:
+            return {'FINISHED'}
+        
+        return {'FINISHED'}
+
+'''
+class NodeShareioShare(Operator):  
+    
+    bl_label = "Share Node Text to NodeShare.io"
+    bl_idname = "wm.nodeshareio_main"
+    
+    # print the values to the console
+    print("[  LOG  ]  attempting share")
+    headers = {"Accept": "application/json"}
+    token = nodeshare.token_string
+    try:
+        res = requests.post('http://localhost:5000/api/tokens', headers=headers, auth=auth)
+        data = res.json()
+        if data:
+            token = data['token']
+        nodeshare.token_string = token
+        print(f"[  LOG  ]  set token: {nodeshare.token_string}")
+        nodeshare.logged_in = True
+    except:
+        print('[  LOG  ]  Auth Error')
+        
+      
+    return {'FINISHED'}
+    
+'''    
 '''
 class OBJECT_MT_CustomMenu(bpy.types.Menu):
     bl_label = "Select"
@@ -220,15 +274,19 @@ class OBJECT_PT_CustomPanel(Panel):
 
         
         #layout.menu(OBJECT_MT_CustomMenu.bl_idname, text="Presets", icon="SCENE")
-        layout.separator()
+        
+        
+        #LOGGED IN LOGIC
         if nodeshare.logged_in:
-            layout.prop(nodeshare, "nodesharer_string", text="Implement")
-            layout.operator("wm.nodeshareio_main")
+            
+            text = "Update Node Text" if nodeshare.have_text else "Copy Node Text"
+            layout.operator("wm.nodeshareio_main",text=text)
             layout.separator()
             layout.operator("wm.nodeshareio_logout")
         else: 
             layout.prop(nodeshare, "username_string", text="username")
             layout.prop(nodeshare, "pw_string", text="password")
+            layout.separator()
             layout.operator("wm.nodeshareio_login")
 
 # ------------------------------------------------------------------------
@@ -239,9 +297,10 @@ classes = (
     MyProperties,
     NodeShareioLogin,
     NodeShareioLogout,
-    NodeShareioMain,
+    NodeShareioCopy,
+    #NodeShareioShare,
     #OBJECT_MT_CustomMenu,
-    OBJECT_PT_CustomPanel
+    OBJECT_PT_CustomPanel,
 )
 
 def register():

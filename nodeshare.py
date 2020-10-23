@@ -318,12 +318,19 @@ class OBJECT_PT_CustomPanel(Panel):
                 return False
             else:
                 return True        
+            
+        def validate_ns_string(ns_string):
+            if ns_string[:2] == 'NS':
+                return True
+
+            
         #LOGGED IN LOGIC
         if nodeshare.logged_in:
             text = "Update Node Text" if has_text() else "Copy Node Text First"
             layout.operator("wm.nodeshareio_main",text=text)
             layout.separator()
-            layout.operator("wm.nodeshareio_share")
+            if validate_ns_string(scene.ns_string):
+                layout.operator("wm.nodeshareio_share")
             layout.separator()
             layout.operator("wm.nodeshareio_logout")
         else: 

@@ -15,6 +15,7 @@ bl_info = {
 import bpy
 import requests
 from requests.auth import HTTPBasicAuth
+import json
 
 from bpy.props import (StringProperty,
                        BoolProperty,
@@ -36,8 +37,6 @@ from bpy.types import (Panel,
 # ------------------------------------------------------------------------
 
 class MyProperties(PropertyGroup):
-    
-
     logged_in: BoolProperty(
         name="Login",
         description="Auth Bool",
@@ -48,43 +47,7 @@ class MyProperties(PropertyGroup):
         description="Node Text Check",
         default = False
         )
-        
-    '''
-    my_int: IntProperty(
-        name = "Int Value",
-        description="A integer property",
-        default = 23,
-        min = 10,
-        max = 100
-        )
- 
-
-    my_float: FloatProperty(
-        name = "Float Value",
-        description = "A float property",
-        default = 23.7,
-        min = 0.01,
-        max = 30.0
-        )
-
-    
-    my_float_vector: FloatVectorProperty(
-        name = "Float Vector Value",
-        description="Something",
-        default=(0.0, 0.0, 0.0), 
-        min= 0.0, # float
-        max = 0.1
-    ) 
-    my_enum: EnumProperty(
-        name="Dropdown:",
-        description="Apply Data to attribute.",
-        items=[ ('OP1', "Option 1", ""),
-                ('OP2', "Option 2", ""),
-                ('OP3', "Option 3", ""),
-               ]
-        )
-    '''
-    
+            
     username_string: StringProperty(
         name="User Input",
         description=":",
@@ -122,16 +85,53 @@ class MyProperties(PropertyGroup):
         maxlen=1024,
         )
 
+    
+# ------------------------------------------------------------------------
+#    Property Examples
+# ------------------------------------------------------------------------
+        
+    '''
+    my_int: IntProperty(
+        name = "Int Value",
+        description="A integer property",
+        default = 23,
+        min = 10,
+        max = 100
+        )
+ 
+
+    my_float: FloatProperty(
+        name = "Float Value",
+        description = "A float property",
+        default = 23.7,
+        min = 0.01,
+        max = 30.0
+        )
+
+    
+    my_float_vector: FloatVectorProperty(
+        name = "Float Vector Value",
+        description="Something",
+        default=(0.0, 0.0, 0.0), 
+        min= 0.0, # float
+        max = 0.1
+    ) 
+    my_enum: EnumProperty(
+        name="Dropdown:",
+        description="Apply Data to attribute.",
+        items=[ ('OP1', "Option 1", ""),
+                ('OP2', "Option 2", ""),
+                ('OP3', "Option 3", ""),
+               ]
+        )
+    '''
 # ------------------------------------------------------------------------
 #    Auth Operators
 # ------------------------------------------------------------------------
 
 def ShowMessageBox(message = "", title = "Message Box", icon = 'INFO'):
-
     def draw(self, context):
         self.layout.label(text=message)
-        
-
     bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
         
     
@@ -152,15 +152,14 @@ class NodeShareioLogin(Operator):
         try:
             res = requests.post('http://localhost:5000/api/tokens', headers=headers, auth=auth)
             data = res.json()
+            print(f'data')
             if data:
                 token = data['token']
             nodeshare.token_string = token
             print(f"[  LOG  ]  set token: {nodeshare.token_string}")
             nodeshare.logged_in = True
         except:
-            print('[  LOG  ]  Auth Error')
-            
-          
+            print('[  LOG  ]  Auth Error')          
         return {'FINISHED'}
 
 
@@ -214,27 +213,57 @@ class NodeShareioCopy(Operator):
 class NodeShareioShare(Operator):  
     
     bl_label = "Share Node Text to NodeShare.io"
-    bl_idname = "wm.nodeshareio_main"
+    bl_idname = "wm.nodeshareio_share"
+    nodesharer_string: StringProperty(name="")
     
-    # print the values to the console
-    print("[  LOG  ]  attempting share")
-    headers = {"Accept": "application/json"}
-    token = nodeshare.token_string
-    try:
-        res = requests.post('http://localhost:5000/api/tokens', headers=headers, auth=auth)
+    def execute(self, context):
+        bpy.ops.object.dialog_operator('INVOKE_DEFAULT')
+        # print the values to the console
+        print("[  LOG  ]  submission request")
+
+        return {'FINISHED'}
+    
+class SubmitDialogOperator(bpy.types.Operator):
+    bl_idname = "object.dialog_operator"
+    bl_label = "Submit Node Properties"
+
+    title_string: StringProperty(name="Title:")
+    description_string: bpy.props.StringProperty(name="Description")
+
+    def execute(self, context):
+        scene = context.scene
+        nodeshare = scene.my_tool
+        node = {
+            'ns_string': scene.ns_string,  
+            'title': 'test',
+            'description': 'test',
+            'premium': False,
+        }
+        node = json.dumps(node)  
+        if nodeshare.token_string:
+            token = nodeshare.token_string 
+        else:
+            return {'CANCELLED'}
+        headers = {"Accept": "application/json", "Authorization": f"Bearer {token}"}
+        print(f"[  HEADERS  ]  {headers}")
+        res = requests.post('http://localhost:5000/api/submit', data=node, headers=headers)
         data = res.json()
-        if data:
-            token = data['token']
-        nodeshare.token_string = token
-        print(f"[  LOG  ]  set token: {nodeshare.token_string}")
-        nodeshare.logged_in = True
-    except:
-        print('[  LOG  ]  Auth Error')
-        
-      
-    return {'FINISHED'}
+        if 'error' in data.keys(): 
+            print(f"[  ERROR - REQUEST  ]  {data['message']}")
+        text = "Node Text Submitted"
+        self.report({'INFO'}, text)
+        ShowMessageBox(text, "Success!")      
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
     
- 
+    
+# ------------------------------------------------------------------------
+#    Custome Menu Example
+# ------------------------------------------------------------------------
+
 '''
 class OBJECT_MT_CustomMenu(bpy.types.Menu):
     bl_label = "Select"
@@ -248,6 +277,8 @@ class OBJECT_MT_CustomMenu(bpy.types.Menu):
         layout.operator("object.select_all", text="Inverse").action = 'INVERT'
         layout.operator("object.select_random", text="Random")
 '''
+
+
 # ------------------------------------------------------------------------
 #    Panel in Object Mode
 # ------------------------------------------------------------------------
@@ -261,7 +292,6 @@ class OBJECT_PT_CustomPanel(Panel):
     bl_context = "objectmode"   
     
 
-
     @classmethod
     def poll(self,context):
         return context.object is not None
@@ -271,16 +301,18 @@ class OBJECT_PT_CustomPanel(Panel):
         scene = context.scene
         nodeshare = scene.my_tool
         
-
-        
         #layout.menu(OBJECT_MT_CustomMenu.bl_idname, text="Presets", icon="SCENE")
-        
-        
+        def has_text():
+            if nodeshare.have_text == "":
+                return False
+            else:
+                return True        
         #LOGGED IN LOGIC
         if nodeshare.logged_in:
-            
-            text = "Update Node Text" if nodeshare.have_text else "Copy Node Text"
+            text = "Update Node Text" if has_text() else "Copy Node Text"
             layout.operator("wm.nodeshareio_main",text=text)
+            layout.separator()
+            layout.operator("wm.nodeshareio_share")
             layout.separator()
             layout.operator("wm.nodeshareio_logout")
         else: 
@@ -298,9 +330,10 @@ classes = (
     NodeShareioLogin,
     NodeShareioLogout,
     NodeShareioCopy,
-    #NodeShareioShare,
+    NodeShareioShare,
     #OBJECT_MT_CustomMenu,
     OBJECT_PT_CustomPanel,
+    SubmitDialogOperator
 )
 
 def register():

@@ -125,6 +125,17 @@ class MyProperties(PropertyGroup):
                ]
         )
     '''
+    
+# ------------------------------------------------------------------------
+#    Message Boxes
+# ------------------------------------------------------------------------
+
+def ShowMessageBox(message = "", title = "Message Box", icon = 'INFO'):
+    def draw(self, context):
+        self.layout.label(text=message)
+    bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+    
+    
 # ------------------------------------------------------------------------
 #    Auth Operators
 # ------------------------------------------------------------------------
@@ -192,20 +203,20 @@ class NodeShareioCopy(Operator):
         scene = context.scene
         nodeshare = scene.my_tool
 
-        
-        try:
-            nodesharer_string = scene.ns_string
-            print(f"Node Sharerer Text String: \n{nodesharer_string}")
-            nodeshare.have_text = True
-            print("+++++++++++++++++++++++++++++++++++++++")
-            print(nodeshare.have_text)
-            print("+++++++++++++++++++++++++++++++++++++++")
-            
-            text = "Node Text Updated" if nodeshare.have_text else "Node Text Captured" 
-            ShowMessageBox(text, "Success!") 
-            
-        except:
-            return {'FINISHED'}
+        if (scene.ns_string) and (scene.ns_string != ""):
+            try:
+                nodesharer_string = scene.ns_string
+                print(f"Node Sharerer Text String: \n{nodesharer_string}")
+                nodeshare.have_text = True
+                print("+++++++++++++++++++++++++++++++++++++++")
+                print(nodeshare.have_text)
+                print("+++++++++++++++++++++++++++++++++++++++")
+                
+                text = "Node Text Updated" if nodeshare.have_text else "Node Text Captured" 
+                ShowMessageBox(text, "Success!") 
+                
+            except:
+                return {'CANCELLED'}
         
         return {'FINISHED'}
 
@@ -303,13 +314,13 @@ class OBJECT_PT_CustomPanel(Panel):
         
         #layout.menu(OBJECT_MT_CustomMenu.bl_idname, text="Presets", icon="SCENE")
         def has_text():
-            if nodeshare.have_text == "":
+            if ( not scene.ns_string) or (scene.ns_string == ""):
                 return False
             else:
                 return True        
         #LOGGED IN LOGIC
         if nodeshare.logged_in:
-            text = "Update Node Text" if has_text() else "Copy Node Text"
+            text = "Update Node Text" if has_text() else "Copy Node Text First"
             layout.operator("wm.nodeshareio_main",text=text)
             layout.separator()
             layout.operator("wm.nodeshareio_share")

@@ -44,7 +44,7 @@ class NodeShareioApproval(Operator):
         #####################################################
         ''')
         print("Pasting Node Text to Material")
-        bpy.ops.node.ns_paste_material(ns_string = self.ns_string)
+        bpy.ops.node.ns_paste_material(ns_string_ext = self.ns_string)
 
 
         return {'FINISHED'}

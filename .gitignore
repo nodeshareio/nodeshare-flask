@@ -16,3 +16,4 @@ update.py
 notes.txt
 server/migrations/
 *.db
+*.crt

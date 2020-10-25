@@ -14,6 +14,10 @@ import os
 from os.path import abspath, join, dirname
 from dotenv import load_dotenv
 import eventlet
+from flask import Flask
+from flask_mqtt import Mqtt
+
+
 
 
 '''
@@ -30,12 +34,6 @@ APP
 '''
 app = Flask(__name__) 
 
-'''
-SOCKET-IO
-
-'''
-socketio = SocketIO() 
-socketio.init_app(app, message_queue='redis://', async_mode = 'eventlet')
 
 '''
 APP CONFIGURATION
@@ -46,11 +44,20 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 app.config['DEBUG'] = True
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASS')
 app.secret_key =  os.environ.get('SECRET_KEY')
+app.config['MQTT_BROKER_URL'] = os.environ.get('MQTT_BROKER_URL')
+app.config['MQTT_BROKER_PORT'] = int(os.environ.get('MQTT_BROKER_PORT'))
+app.config['MQTT_USERNAME'] = os.environ.get('MQTT_USERNAME')
+app.config['MQTT_PASSWORD'] = os.environ.get('MQTT_PASSWORD')
+app.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
+
+
 
 
 '''
 INSTANTIATE PLUGINS
 '''
+mqtt = Mqtt(app)
+mqtt.client.tls_set()
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -61,6 +68,16 @@ limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["5000 per day", "2000 per hour"],
 )
+
+'''
+SOCKET-IO
+
+'''
+socketio = SocketIO() 
+socketio.init_app(app, message_queue='redis://', async_mode = 'eventlet')
+
+
+
 
 ''' 
 LOGIN MANAGER 

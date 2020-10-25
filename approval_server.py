@@ -3,6 +3,10 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from random import randrange, randint
 from asyncio_mqtt import Client, MqttError
 from time import sleep
+import os
+import sys
+import subprocess
+
 
 broker = 'mqtt.hansford.dev'
 port = 8883
@@ -81,12 +85,15 @@ async def process_submit(client, messages):
         if message.topic == "nodeshare/submit":
             msg = message.payload.decode()
             print(f"[  INFO  ]  Submission Received: {message.payload.decode()}")
-            try:
-                await get_approval(msg)
-                await client.publish("nodeshare/submit/ack", "approved!", qos=1)
-                print("[  INFO ]  Node passed approval test!")
-            except:
-                await client.publish("nodeshare/submit/ack", "failed submission", qos=1)
+
+            await get_approval(msg)
+            await client.publish("nodeshare/submit/ack", "approved!", qos=1)
+            # try:
+            #     await get_approval(msg)
+            #     await client.publish("nodeshare/submit/ack", "approved!", qos=1)
+            #     print("[  INFO ]  Node passed approval test!")
+            # except:
+            #     await client.publish("nodeshare/submit/ack", "failed submission", qos=1)
             await asyncio.sleep(2)
 
 
@@ -107,6 +114,7 @@ async def cancel_tasks(tasks):
         except asyncio.CancelledError:
             pass
 
+
 async def main():
     # Run the advanced_example indefinitely. Reconnect automatically
     # if the connection is lost.
@@ -119,11 +127,12 @@ async def main():
         finally:
             await asyncio.sleep(reconnect_interval)
 
-async def get_approval(msg):
-    print(f"Trying to get approval for: {msg}")
-    await asyncio.sleep(2)
 
-    
+async def get_approval(msg):    
+    print(f"Trying to get approval for: {msg}")
+    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', './ns-test.blend', '--python', './approval-test.py']
+    p = subprocess.run(comm, shell=True)
+    await asyncio.sleep(2)
 
 
 if __name__ == "__main__":

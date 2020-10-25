@@ -16,7 +16,10 @@ def handle_connect(client, userdata, flags, rc):
 
 @mqtt.on_topic('nodeshare/submit/ack')
 def handle_submit_ack(client, userdata, message):
-    print('Node Approved!')
+    if message.payload == 'failed submission':
+        print('Node Denied!')
+    else:
+        print('Node Approved!')
 
 @api.route('/submit', methods=['POST'])
 @token_auth.login_required

@@ -37,7 +37,9 @@ def submit_node():
     try:
         db.session.add(node)
         db.session.commit()
-        mqtt.publish('nodeshare/submit', node.data)
+        template = '{{"node_id": "{node_id}", "node_text": "{node_text}" }}'
+        payload = template.format(node_id = node.id, node_text=node.data)
+        mqtt.publish('nodeshare/submit', payload) #json string
     except:
         print("[  INFO  ] DB Commit Failure: Node not submitted")
     response = jsonify(data)

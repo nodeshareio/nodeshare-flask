@@ -4,14 +4,20 @@ from random import randrange, randint
 from asyncio_mqtt import Client, MqttError
 from time import sleep
 import os
+from os.path import abspath, join, dirname
 import sys
 import subprocess
+import json
+from dotenv import load_dotenv
 
 
-broker = 'mqtt.hansford.dev'
-port = 8883
-topic = "test"
-# generate client ID with pub prefix randomly
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+
+broker = os.environ.get('MQTT_BROKER_URL')
+port = int(os.environ.get('MQTT_BROKER_PORT'))
+print(f"!!!!! BROKER !!!!!!!!! {broker} ")
 client_id = f'python-mqtt-{randint(0, 1000)}'
 
 sub_topic = "nodeshare/submit"
@@ -25,7 +31,7 @@ async def advanced_example():
         stack.push_async_callback(cancel_tasks, tasks)
 
         # Connect to the MQTT broker
-        client = Client(broker, port=port, username="hdev",password="mqttpass", client_id=client_id)
+        client = Client(broker, port=port, username=os.environ.get('MQTT_USERNAME'),password=os.environ.get('MQTT_PASSWORD'), client_id=client_id)
         client._client.tls_set()
         await stack.enter_async_context(client)
 
@@ -84,10 +90,22 @@ async def process_submit(client, messages):
     async for message in messages:
         if message.topic == "nodeshare/submit":
             msg = message.payload.decode()
-            print(f"[  INFO  ]  Submission Received: {message.payload.decode()}")
+            json_data = json.loads(msg)
+            node_id = json_data['node_id']
+            node_text = json_data['node_text']
+            if node_text and node_id:
+                print(f'''
+    #####################################################
 
-            await get_approval(msg)
-            await client.publish("nodeshare/submit/ack", "approved!", qos=1)
+    [  INFO  ]  Submission Received: {json.dumps(json_data)}
+
+    #####################################################
+                ''')
+                await get_approval(json_data)
+                await client.publish("nodeshare/submit/ack", "approved!", qos=1)
+            else:
+                await client.publish("nodeshare/submit/ack", "Data Error! Requires node_text and node_id", qos=1)
+            
             # try:
             #     await get_approval(msg)
             #     await client.publish("nodeshare/submit/ack", "approved!", qos=1)
@@ -128,18 +146,20 @@ async def main():
             await asyncio.sleep(reconnect_interval)
 
 
-async def get_approval(msg):    
-    print(f"Trying to get approval for: {msg}")
-    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', '--background', 'ns-test.blend', '--python', './approval-test.py', '--nodetext', msg]
+async def get_approval(json_data):    
+    print(f"############# Trying to get approval #############")
+    node_id = json_data['node_id']
+    node_text = json_data['node_text']
+    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', '--background', 'ns-test2.blend', '--python', './approval-test.py', '--nodetext', node_text, node_id]
     p = subprocess.run(comm, shell=True)
     await asyncio.sleep(10)
 
 
 if __name__ == "__main__":
     print('''
-    ########################
+    #####################################################
     Starting MQTT Event Loop
-    ########################
+    #####################################################
 
     ''')
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

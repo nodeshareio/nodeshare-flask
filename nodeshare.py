@@ -272,7 +272,7 @@ class SubmitDialogOperator(bpy.types.Operator):
     
     
 # ------------------------------------------------------------------------
-#    Custome Menu Example
+#    Custom Menu Example
 # ------------------------------------------------------------------------
 
 '''

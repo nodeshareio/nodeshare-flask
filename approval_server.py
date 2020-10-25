@@ -130,9 +130,9 @@ async def main():
 
 async def get_approval(msg):    
     print(f"Trying to get approval for: {msg}")
-    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', './ns-test.blend', '--python', './approval-test.py']
+    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', '--background', 'ns-test.blend', '--python', './approval-test.py', '--nodetext', msg]
     p = subprocess.run(comm, shell=True)
-    await asyncio.sleep(2)
+    await asyncio.sleep(10)
 
 
 if __name__ == "__main__":

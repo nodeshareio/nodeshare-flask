@@ -1,7 +1,6 @@
 import time
 import bpy
 import sys
-import pyperclip
 
 from bpy.props import (StringProperty,
                        BoolProperty,

@@ -17,7 +17,13 @@ load_dotenv(dotenv_path)
 
 broker = os.environ.get('MQTT_BROKER_URL')
 port = int(os.environ.get('MQTT_BROKER_PORT'))
-print(f"!!!!! BROKER !!!!!!!!! {broker} ")
+print(f'''
+    !!!!!!!!! BROKER !!!!!!!!! 
+    
+    {broker} 
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ''')
 client_id = f'python-mqtt-{randint(0, 1000)}'
 
 sub_topic = "nodeshare/submit"
@@ -152,7 +158,7 @@ async def get_approval(json_data):
     node_text = json_data['node_text']
     comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', '--background', 'ns-test2.blend', '--python', './approval-test.py', '--nodetext', node_text, node_id]
     p = subprocess.run(comm, shell=True)
-    await asyncio.sleep(10)
+    await asyncio.sleep(15)
 
 
 if __name__ == "__main__":

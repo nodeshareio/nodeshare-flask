@@ -45,3 +45,25 @@ def submit_node():
     response = jsonify(data)
     response.status_code = 201
     return response
+
+@api.route('/approve', methods=['POST'])
+@token_auth.login_required
+def approve_node():
+    
+    data = json.loads(request.data) or {'error: no data'}
+    print(f"approved  data: {data}")
+    if 'ns_string' not in data:
+        return bad_request('Node Text Required!')
+    if 'node_id' not in data:
+        return bad_request('ID Required!')
+    print("[  INFO  ]  Node Approved")  
+    print(f"[  APPROVED NODE TEXT  ]  {data['ns_string']}")  
+    node = Node.query.get(int(data['node_id']))
+    node.approved = True
+    try:
+        db.session.commit()
+    except:
+        print("[  INFO  ] DB Commit Failure: Node not submitted")
+    response = jsonify(data)
+    response.status_code = 201
+    return response

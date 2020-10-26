@@ -23,7 +23,7 @@ from bpy.types import (Panel,
                        )
 
 from dotenv import load_dotenv
-
+import json
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -32,6 +32,7 @@ argv = sys.argv
 args = argv[argv.index("--nodetext") + 1:] # get all args after "--nodetext"
 nodetext = args[0]  
 nodeid = args[1]  
+
 def check_for_webm(id):
     path = f"C:\\Projects\\NS_TESTmedia\\node_preview_{id}.webm"
     my_file = Path(path)
@@ -49,6 +50,9 @@ def check_for_webm(id):
     ##############################################    
     ''')
     return False
+
+
+
 
 class MyProperties(PropertyGroup):
     logged_in: BoolProperty(
@@ -150,7 +154,33 @@ class NodeShareioApproval(Operator):
     bl_idname = "wm.nodeshareio_approval"
     ns_string: StringProperty(name="", default="")
     node_id: StringProperty(name="node_id", default="")
+    
+    @classmethod
+    def approve_node(cls, data):
+        print('''
+        #################
+        DATA
+        #################
+        ''')
+        ns_string, node_id = data
+        payload = {
+            'node_id': node_id,
+            'ns_string': ns_string
+        }
+        data = json.dumps(payload)
+        print(f"[  DATATATATATATATTA : {data} ] ")
+        headers = {"Accept": "application/json", "Authorization": f"Bearer {bpy.context.scene.ns_admin.token_string}"}
+        print(f"[  Headers: ]  {headers}")
 
+        res = requests.post('http://localhost:5000/api/approve', data=data, headers=headers)
+        print(f"RESPONSE: {res.text}")
+        data = res.json()
+        text = "Node Text Submitted"
+        if 'error' in data.keys(): 
+            print(f"[  ERROR - REQUEST  ]  {data['error']}")
+            text = "Node Text NOT Submitted"
+        print(text)
+        return True
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
@@ -159,7 +189,7 @@ class NodeShareioApproval(Operator):
         scene = context.scene
         self.ns_string = nodetext
         self.node_id = nodeid
-    
+        data = (self.ns_string, self.node_id)
         print('''
     ############# NODE TEXT STRING TO LOAD ##############
         ''')
@@ -186,6 +216,7 @@ class NodeShareioApproval(Operator):
         #bpy.ops.render.render(animation=True)
         if check_for_webm(self.node_id):
             print("CALL approve_node() to send webm to server upon approval")
+            approved = NodeShareioApproval.approve_node(data)
         else:
             return {'CANCELLED'}    
 

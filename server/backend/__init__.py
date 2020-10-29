@@ -1,11 +1,11 @@
 
-from flask import Flask, redirect, url_for, flash, request
+from flask import Flask, redirect, url_for, flash, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_manager
 from flask_login.mixins import AnonymousUserMixin 
 from flask_migrate import Migrate
 from flask_mail import Mail
-from flask_limiter import Limiter
+# from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from functools import wraps
@@ -34,7 +34,10 @@ APP
 '''
 app = Flask(__name__) 
 
-
+# Custom static data
+@app.route('/cdn/<path:filename>')
+def preview(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 '''
 APP CONFIGURATION
 '''
@@ -49,9 +52,7 @@ app.config['MQTT_BROKER_PORT'] = int(os.environ.get('MQTT_BROKER_PORT'))
 app.config['MQTT_USERNAME'] = os.environ.get('MQTT_USERNAME')
 app.config['MQTT_PASSWORD'] = os.environ.get('MQTT_PASSWORD')
 app.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
-
-
-
+app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'static/media/')
 
 '''
 INSTANTIATE PLUGINS
@@ -63,11 +64,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["5000 per day", "2000 per hour"],
-)
+# limiter = Limiter(
+#     app,
+#     key_func=get_remote_address,
+#     default_limits=["5000 per day", "2000 per hour"],
+# )
 
 '''
 SOCKET-IO
@@ -111,6 +112,12 @@ def role_required(role="ANY"):
         return decorated_view
     return wrapper
 
+'''
+TEMPLATE FILTERS
+'''
+@app.template_filter('extension')
+def ext_filter(s):
+    return s.split('.')[-1]
 
 '''
 IMPORT BLUEPRINTS

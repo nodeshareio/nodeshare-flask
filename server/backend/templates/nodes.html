@@ -36,20 +36,33 @@
 <section >
 
 <div class="container fadein" style="padding-top: 2rem; text-align: center;" >
-  {% for rows in nodes|batch(2) %}
+  {% for rows in nodes|batch(3) %}
   <div class="columns shade fadein" style="background-color: white; margin: 0.9rem;">
     {% for node in rows %}
     <div class="column fadein">
     <div class="card shade fadein">
         <div class="card-image">
+          
+          {% set ext =  (node.sample_path | extension) %}
+          
+          {% if ext == "webm"  %}
+
             <figure class="image fadein" >
+              
               <a href="{{url_for('site.node', id=node.id)}}">
                 <video class="video-play is-640x480" style="width: 100%;">
-                  <source src="{{url_for('static', filename=node.sample_path)}}" type="video/ogg">
+                  <source src="{{url_for('preview', filename=node.sample_path)}}" type="video/ogg">
                   Your browser does not support HTML video.
                   </video>
-              </a>
+                </a>
             </figure>
+
+          {% else %}
+            <a href="{{url_for('site.node', id=node.id)}}">
+              <img src="{{url_for('preview', filename=node.sample_path)}}"> 
+            </a>
+          {% endif %}
+
           </div>
         <div class="card-content">
           <div class="media">

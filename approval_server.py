@@ -17,18 +17,12 @@ load_dotenv(dotenv_path)
 
 broker = os.environ.get('MQTT_BROKER_URL')
 port = int(os.environ.get('MQTT_BROKER_PORT'))
-print(f'''
-    !!!!!!!!! BROKER !!!!!!!!! 
-    
-    {broker} 
-    
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ''')
+print(f"BROKER: {broker}")
 client_id = f'python-mqtt-{randint(0, 1000)}'
 
 sub_topic = "nodeshare/submit"
 async def advanced_example():
-    # We 💛 context managers. Let's create a stack to help
+    # We ðŸ’› context managers. Let's create a stack to help
     # us manage them.
     async with AsyncExitStack() as stack:
         # Keep track of the asyncio tasks that we create, so that
@@ -45,7 +39,7 @@ async def advanced_example():
         topic_filters = (
             "nodeshare/#",
             "test/#"
-            # 👉 Try to add more filters!
+            # ðŸ‘‰ Try to add more filters!
         )
         for topic_filter in topic_filters:
             # Log all messages that matches the filter
@@ -68,14 +62,14 @@ async def advanced_example():
         tasks.add(task)
 
         # Subscribe to topic(s)
-        # 🤔 Note that we subscribe *after* starting the message
+        # ðŸ¤” Note that we subscribe *after* starting the message
         # loggers. Otherwise, we may miss retained messages.
         await client.subscribe(sub_topic)
 
         # Poll for submissions
         # topics = (
         #     "nodeshare/submit/queue",
-        #     # 👉 Try to add more topics!
+        #     # ðŸ‘‰ Try to add more topics!
         # )
         # task = asyncio.create_task(poll_for_submit(client, topics))
         # tasks.add(task)
@@ -103,7 +97,7 @@ async def process_submit(client, messages):
                 print(f'''
     #####################################################
 
-    [  INFO  ]  Submission Received: {json.dumps(json_data)}
+    [  INFO  ]  Submission Received: {json_data}
 
     #####################################################
                 ''')
@@ -123,7 +117,7 @@ async def process_submit(client, messages):
 
 async def log_messages( messages, template):
     async for message in messages:
-        # 🤔 Note that we assume that the message paylod is an
+        # ðŸ¤” Note that we assume that the message paylod is an
         # UTF8-encoded string (hence the `bytes.decode` call).
         print(template.format(message.payload.decode()))
         
@@ -156,7 +150,7 @@ async def get_approval(json_data):
     print(f"############# Trying to get approval #############")
     node_id = json_data['node_id']
     node_text = json_data['node_text']
-    comm = ['C:\Program Files\Blender Foundation\Blender 2.90/blender.exe', '--background', 'ns-test2.blend', '--python', './approval-test.py', '--nodetext', node_text, node_id]
+    comm = [f'xvfb-run --auto-servernum --server-args="-screen 0 1600x1024x16" blender --background ns-test2.blend --python approval-test.py --nodetext {node_text} {node_id}']
     p = subprocess.run(comm, shell=True)
     await asyncio.sleep(15)
 
@@ -168,5 +162,5 @@ if __name__ == "__main__":
     #####################################################
 
     ''')
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    #asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())

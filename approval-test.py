@@ -4,7 +4,7 @@ import sys
 import os
 from os.path import abspath, join, dirname
 from pathlib import Path
-sys.path.insert(0, r"C:\NodeSharer-master")
+sys.path.insert(0, "/home/jordan/NodeShareio/NodeSharer")
 import nodesharer
 import requests
 from requests.auth import HTTPBasicAuth
@@ -29,29 +29,31 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 argv = sys.argv
+print("argv")
 args = argv[argv.index("--nodetext") + 1:] # get all args after "--nodetext"
 nodetext = args[0]  
 nodeid = args[1]  
+API_URI = '192.168.2.207'
 
-def check_for_webm(id):
-    path = f"C:\\Projects\\NS_TESTmedia\\node_preview_{id}.webm"
+'''
+################
+Utils
+################
+'''
+def check_for_preview(path, id):
     my_file = Path(path)
     if my_file.is_file():
-        print(f'''
-    ##############################################
-        Preview Exists at {path}
-    ##############################################    
-    ''')
+        print(f'Preview Exists at {path}')
         return True 
-
-    print(f'''
-    ##############################################
-        Preview Does Not Exists at {path}
-    ##############################################    
-    ''')
+    print(f'Preview Does Not Exists at {path}')
     return False
 
 
+'''
+################
+Properties
+################
+'''
 
 
 class MyProperties(PropertyGroup):
@@ -103,6 +105,12 @@ class MyProperties(PropertyGroup):
         maxlen=1024,
         )
 
+'''
+################
+AUTH
+################
+'''
+
 
 class NodeShareioApprovalLogin(Operator):
     bl_label = "Login"
@@ -119,7 +127,7 @@ class NodeShareioApprovalLogin(Operator):
         pw = os.environ.get("ADMIN_PW")
         auth = HTTPBasicAuth(un, pw)
         try:
-            res = requests.post('http://localhost:5000/api/tokens', headers=headers, auth=auth)
+            res = requests.post(f'http://{API_URI}:5000/api/tokens', headers=headers, auth=auth)
             data = res.json()
             print(f'data')
             if data:
@@ -148,6 +156,14 @@ class NodeShareioApprovalLogout(Operator):
           
         return {'FINISHED'}
 
+
+'''
+################
+MAIN
+################
+'''
+
+
 class NodeShareioApproval(Operator):  
     
     bl_label = "NodeShare.io"
@@ -162,25 +178,53 @@ class NodeShareioApproval(Operator):
         DATA
         #################
         ''')
-        ns_string, node_id = data
+        ns_string, node_id, render_path = data
+        filename = render_path.split('/')[-1]
         payload = {
             'node_id': node_id,
-            'ns_string': ns_string
+            'ns_string': ns_string,
+            'filename': filename
         }
         data = json.dumps(payload)
-        print(f"[  DATATATATATATATTA : {data} ] ")
         headers = {"Accept": "application/json", "Authorization": f"Bearer {bpy.context.scene.ns_admin.token_string}"}
-        print(f"[  Headers: ]  {headers}")
 
-        res = requests.post('http://localhost:5000/api/approve', data=data, headers=headers)
-        print(f"RESPONSE: {res.text}")
+        print('''
+        #################
+        CALLING API
+        #################
+        ''')
+
+        res = requests.post(f'http://{API_URI}:5000/api/approve', data=data, headers=headers)
         data = res.json()
-        text = "Node Text Submitted"
         if 'error' in data.keys(): 
             print(f"[  ERROR - REQUEST  ]  {data['error']}")
             text = "Node Text NOT Submitted"
-        print(text)
+            print(text)
+            return False
+        print(f'''
+        #################
+        API RESPONSE: {res.text}
+        #################
+        ''')
+
+        files = {'preview': open(render_path, 'rb')}
+        res = requests.post(f'http://{API_URI}:5000/api/preview/{filename}',  files=files, headers=headers)
+        data = res.json()
+        if 'error' in data.keys(): 
+            print(f"[  ERROR - REQUEST  ]  {data['error']}")
+            text = "Preview NOT Submitted"
+            print(text)
+            return False
+        
+        print(f'''
+        #################
+        PREVIEW UPLOADED {data['success']}
+        #################
+        ''')
+        
         return True
+
+
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
@@ -189,7 +233,7 @@ class NodeShareioApproval(Operator):
         scene = context.scene
         self.ns_string = nodetext
         self.node_id = nodeid
-        data = (self.ns_string, self.node_id)
+        
         print('''
     ############# NODE TEXT STRING TO LOAD ##############
         ''')
@@ -203,7 +247,6 @@ class NodeShareioApproval(Operator):
         print("Pasting Node Text to Material")
 
         new_mat = nodesharer.NS_mat_constructor(self.ns_string)
-        #bpy.ops.node.ns_paste_material(ns_string_ext = self.ns_string)
         print('''
     #####################################################
 
@@ -211,20 +254,32 @@ class NodeShareioApproval(Operator):
 
     #####################################################
         ''')
+        scene.render.image_settings.file_format = 'PNG'
+        render_path = f"/home/jordan/NodeShareio/media/node_preview_{self.node_id}.png"
+        scene.render.filepath = render_path
+        bpy.ops.render.render(write_still=1)
+        if check_for_preview(render_path, self.node_id):
+            data = (self.ns_string, self.node_id, render_path)
+            approved_preview = NodeShareioApproval.approve_node(data)
+            if approved_preview:
+                print('''
+        #####################################################
 
-        scene.render.filepath = (f"C:\\Projects\\NS_TESTmedia\\node_preview_{self.node_id}.webm")
-        #bpy.ops.render.render(animation=True)
-        if check_for_webm(self.node_id):
-            print("CALL approve_node() to send webm to server upon approval")
-            approved = NodeShareioApproval.approve_node(data)
+        Node Approved!
+
+        #####################################################
+                ''')
+                return {'FINISHED'}
         else:
             return {'CANCELLED'}    
 
+        
 
-
-        return {'FINISHED'}
 def main():
+    register()
+    bpy.ops.wm.nodeshareioadmin_login()
     bpy.ops.wm.nodeshareio_approval()
+    bpy.ops.wm.nodeshareioadmin_logout()
 
 classes = (
     MyProperties,
@@ -247,9 +302,7 @@ def unregister():
 
 
 if __name__ == "__main__":
-    register()
-    bpy.ops.wm.nodeshareioadmin_login()
-    bpy.ops.wm.nodeshareio_approval()
-    bpy.ops.wm.nodeshareioadmin_logout()
+    main()
+    print("Exiting Approval Script")
     time.sleep(5)
     bpy.ops.wm.quit_blender()

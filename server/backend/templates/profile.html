@@ -59,7 +59,7 @@
                           {% if node.sample_path %}
                           <video class="video-play is-128x128" style="width: 100%;">
                             
-                            <source src="{{url_for('static', filename=node.sample_path)}}" type="video/ogg">
+                            <source src="{{url_for('preview', filename=node.sample_path)}}" type="video/ogg">
                               Your browser does not support HTML video.
                             </video>
                               {%else%}

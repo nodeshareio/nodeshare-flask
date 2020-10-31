@@ -33,7 +33,7 @@ print("argv")
 args = argv[argv.index("--nodetext") + 1:] # get all args after "--nodetext"
 nodetext = args[0]  
 nodeid = args[1]  
-API_URI = '192.168.2.207'
+API_URI = os.environ.get("API_URI")
 
 '''
 ################
@@ -127,7 +127,7 @@ class NodeShareioApprovalLogin(Operator):
         pw = os.environ.get("ADMIN_PW")
         auth = HTTPBasicAuth(un, pw)
         try:
-            res = requests.post(f'http://{API_URI}:5000/api/tokens', headers=headers, auth=auth)
+            res = requests.post(f'http://{API_URI}/api/tokens', headers=headers, auth=auth)
             data = res.json()
             print(f'data')
             if data:
@@ -194,7 +194,7 @@ class NodeShareioApproval(Operator):
         #################
         ''')
 
-        res = requests.post(f'http://{API_URI}:5000/api/approve', data=data, headers=headers)
+        res = requests.post(f'http://{API_URI}/api/approve', data=data, headers=headers)
         data = res.json()
         if 'error' in data.keys(): 
             print(f"[  ERROR - REQUEST  ]  {data['error']}")
@@ -208,7 +208,7 @@ class NodeShareioApproval(Operator):
         ''')
 
         files = {'preview': open(render_path, 'rb')}
-        res = requests.post(f'http://{API_URI}:5000/api/preview/{filename}',  files=files, headers=headers)
+        res = requests.post(f'http://{API_URI}/api/preview/{filename}',  files=files, headers=headers)
         data = res.json()
         if 'error' in data.keys(): 
             print(f"[  ERROR - REQUEST  ]  {data['error']}")

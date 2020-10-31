@@ -1,4 +1,4 @@
-from flask import jsonify, request, url_for
+from flask import jsonify, request, url_for, g
 from backend.models import Node
 from backend.api import api
 from backend.api.errors import bad_request
@@ -45,6 +45,8 @@ def submit_node():
     print(f"[  NODE TEXT  ]  {data['ns_string']}")  
     node = Node()
     node.from_dict(data, approved=False)
+    node.sample_path = "default_preview.webm"
+    node.user_id = g.current_user.id
     try:
         db.session.add(node)
         db.session.commit()

@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request, send_from_directory, jsonify, session
-from backend import db, app, role_required #, limiter
+from backend import db, app, role_required, mqtt #, limiter
 from backend.site import site
 from datetime import datetime
 from flask_login import current_user, login_required
@@ -53,8 +53,12 @@ def submit_node():
     if form.validate_on_submit():
         node = Node(title = form.title.data, description = form.description.data, data = form.data.data) # TODO: sanitize!
         node.user_id = current_user.id
+        node.sample_path = "default_preview.webm"
         db.session.add(node)
         db.session.commit()
+        template = '{{"node_id": "{node_id}", "node_text": "{node_text}" }}'
+        payload = template.format(node_id = node.id, node_text=node.data)
+        mqtt.publish('nodeshare/submit', payload) 
         flash(f'{node.title} submitted!', 'success')
         return redirect(url_for('site.profile', id = current_user.id))
     return render_template('submit_node.html', form=form)

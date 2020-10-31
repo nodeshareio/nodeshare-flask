@@ -54,20 +54,25 @@
               <div class="content">
                 <div class="columns shade">
                   <div class="column">
-                      <figure lass="image is-128x128">
-                        <a href="{{url_for('site.node', id=node.id)}}">
-                          {% if node.sample_path %}
-                          <video class="video-play is-128x128" style="width: 100%;">
-                            
-                            <source src="{{url_for('preview', filename=node.sample_path)}}" type="video/ogg">
-                              Your browser does not support HTML video.
-                            </video>
-                              {%else%}
-                              <img src="{{url_for('static', filename='img/404.png')}}" type="video/ogg">
-                            {% endif %}
-                            
-                        </a>
-                      </figure>
+                    {% set ext =  (node.sample_path | extension) %}
+          
+          {% if ext == "webm"  %}
+
+            <figure class="image fadein" >
+              
+              <a href="{{url_for('site.node', id=node.id)}}">
+                <video class="video-play is-640x480" style="width: 100%;">
+                  <source src="{{url_for('preview', filename=node.sample_path)}}" type="video/ogg">
+                  Your browser does not support HTML video.
+                  </video>
+                </a>
+            </figure>
+
+          {% else %}
+            <a href="{{url_for('site.node', id=node.id)}}">
+              <img src="{{url_for('preview', filename=node.sample_path)}}"> 
+            </a>
+          {% endif %}
                   </div>
                     <div class="column">
 

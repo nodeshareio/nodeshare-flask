@@ -48,8 +48,8 @@ class MyProperties(PropertyGroup):
         default = False
         )
             
-    username_string: StringProperty(
-        name="User Input",
+    email_string: StringProperty(
+        name="Login Email",
         description=":",
         default="",
         maxlen=1024,
@@ -70,20 +70,34 @@ class MyProperties(PropertyGroup):
         )
     
 
-    my_path: StringProperty(
-        name = "Directory",
-        description="Choose a directory:",
-        default="",
-        maxlen=1024,
-        subtype='DIR_PATH'
-        )
-
     nodesharer_string: StringProperty(
-        name="NodeSharer String",
+        name="NodeSharer Node Text String",
         description=":",
         default="",
         maxlen=1024,
         )
+        
+    title_string: StringProperty(
+        name="NodeShareio Title",
+        description=":",
+        default="",
+        maxlen=1024,
+        )
+    
+    description_string: StringProperty(
+        name="NodeShareio Description",
+        description=":",
+        default="",
+        maxlen=1024,
+        )
+        
+#    my_path: StringProperty(
+#        name = "Directory",
+#        description="Choose a directory:",
+#        default="",
+#        maxlen=1024,
+#        subtype='DIR_PATH'
+#        )
 
     
 # ------------------------------------------------------------------------
@@ -152,12 +166,12 @@ class NodeShareioLogin(Operator):
     
     def execute(self, context):
         scene = context.scene
-        nodeshare = scene.my_tool
+        nodeshare = scene.NodeShareio
         
         # print the values to the console
         print("[  LOG  ]  attempting login")
         headers = {"Accept": "application/json"}
-        un = nodeshare.username_string
+        un = nodeshare.email_string
         pw = nodeshare.pw_string
         auth = HTTPBasicAuth(un, pw)
         try:
@@ -169,8 +183,11 @@ class NodeShareioLogin(Operator):
             nodeshare.token_string = token
             print(f"[  LOG  ]  set token: {nodeshare.token_string}")
             nodeshare.logged_in = True
+            nodeshare.pw_string = ""
         except:
-            print('[  LOG  ]  Auth Error')          
+            print('[  LOG  ]  Auth Error') 
+            nodeshare.pw_string = ""   
+            return {'CANCELLED'}      
         return {'FINISHED'}
 
 
@@ -181,7 +198,7 @@ class NodeShareioLogout(Operator):
     
     def execute(self, context):
         scene = context.scene
-        nodeshare = scene.my_tool
+        nodeshare = scene.NodeShareio
         nodeshare.token_string = ""
         nodeshare.logged_in =- False
         
@@ -201,7 +218,7 @@ class NodeShareioCopy(Operator):
     
     def execute(self, context):
         scene = context.scene
-        nodeshare = scene.my_tool
+        nodeshare = scene.NodeShareio
 
         if (scene.ns_string) and (scene.ns_string != ""):
             try:
@@ -238,16 +255,15 @@ class SubmitDialogOperator(bpy.types.Operator):
     bl_idname = "object.dialog_operator"
     bl_label = "Submit Node Properties"
 
-    title_string: StringProperty(name="Title:")
-    description_string: bpy.props.StringProperty(name="Description")
-
+    
     def execute(self, context):
         scene = context.scene
-        nodeshare = scene.my_tool
+        nodeshare = scene.NodeShareio
+        
         node = {
             'ns_string': scene.ns_string,  
-            'title': 'test',
-            'description': 'test',
+            'title': nodeshare.title_string,
+            'description': nodeshare.description_string,
             'premium': False,
         }
         node = json.dumps(node)  
@@ -265,7 +281,16 @@ class SubmitDialogOperator(bpy.types.Operator):
         self.report({'INFO'}, text)
         ShowMessageBox(text, "Success!")      
         return {'FINISHED'}
+    
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        nodeshare = scene.NodeShareio
 
+        layout.prop(nodeshare, "title_string", text="Title:")
+        layout.separator()
+        layout.prop(nodeshare, "description_string", text="Description:")
+            
     def invoke(self, context, event):
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
@@ -310,7 +335,7 @@ class OBJECT_PT_CustomPanel(Panel):
     def draw(self, context):
         layout = self.layout
         scene = context.scene
-        nodeshare = scene.my_tool
+        nodeshare = scene.NodeShareio
         
         #layout.menu(OBJECT_MT_CustomMenu.bl_idname, text="Presets", icon="SCENE")
         def has_text():
@@ -334,8 +359,8 @@ class OBJECT_PT_CustomPanel(Panel):
             layout.separator()
             layout.operator("wm.nodeshareio_logout")
         else: 
-            layout.prop(nodeshare, "username_string", text="username")
-            layout.prop(nodeshare, "pw_string", text="password")
+            layout.prop(nodeshare, "email_string", text="Login Email")
+            layout.prop(nodeshare, "pw_string", text="Password")
             layout.separator()
             layout.operator("wm.nodeshareio_login")
 
@@ -359,13 +384,13 @@ def register():
     for cls in classes:
         register_class(cls)
 
-    bpy.types.Scene.my_tool = PointerProperty(type=MyProperties)
+    bpy.types.Scene.NodeShareio = PointerProperty(type=MyProperties)
 
 def unregister():
     from bpy.utils import unregister_class
     for cls in reversed(classes):
         unregister_class(cls)
-    del bpy.types.Scene.my_tool
+    del bpy.types.Scene.NodeShareio
 
 
 if __name__ == "__main__":

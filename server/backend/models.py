@@ -233,10 +233,13 @@ class Node(PaginatedAPIMixin, db.Model):
         }
         return data
 
-    def from_dict(self, data):
-        for key in get_keys(Project):
-            if key in data:
-                setattr(self, key, data[key])
+    def from_dict(self, data, approved=False):
+        data['data'] = data['ns_string']
+        data['approved'] = approved
+        for field in ['title', 'description', 'data', 'approved']:
+            if field in data:
+                setattr(self, field, data[field])
+
 
 
 class Notification(db.Model):

@@ -9,9 +9,11 @@ token_auth = HTTPTokenAuth()
 
 
 @basic_auth.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
+def verify_password(email, password):
+    print("Trying to login")
+    user = User.query.filter_by(email=email).first()
+    if email is None:
+        print("[  ERROR  ]  email not in database")
         return False
     g.current_user = user
     return user.check_password(password)
@@ -19,6 +21,7 @@ def verify_password(username, password):
 
 @basic_auth.error_handler
 def basic_auth_error():
+    print("[  ERROR  ]  basic auth error")
     return error_response(401)
 
 

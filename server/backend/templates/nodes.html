@@ -31,11 +31,26 @@
 
 
 
+
 </style>
 
 <section >
 
 <div class="container fadein" style="padding-top: 2rem; text-align: center;" >
+  <div class="columns" style="margin: 0.9rem;">
+    <div class="column">
+        {% if prev_url %}
+        <a class="button is-success is-light is-medium is-fullwidth" href="{{ prev_url }}">Next Nodes</a>
+        {% endif %}
+    </div>
+    
+    <div class="column">
+        {% if next_url %}
+        <a class="button is-success is-light is-medium is-fullwidth" href="{{ next_url }}">Prev Nodes</a>
+        {% endif %}
+    </div>
+
+  </div>
   {% for rows in nodes|batch(3) %}
   <div class="columns shade fadein" style="background-color: white; margin: 0.9rem;">
     {% for node in rows %}

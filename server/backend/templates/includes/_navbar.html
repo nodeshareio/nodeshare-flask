@@ -64,10 +64,12 @@
           <a class="button has-tooltip-arrow has-tooltip-bottom" href="https://github.com/wildiness/NodeSharer" data-tooltip="Node Sharer Add-On GitHub ">
             <i class="fab fa-github fa-lg" ></i>
           </a>
-          <a class="button is-light has-tooltip-arrow has-tooltip-bottom"  href="https://github.com/wildiness/NodeSharer/archive/master.zip" data-tooltip="Download Blender Add-On">
-           <strong> Get Add-On </strong>
+          <a class="button is-light has-tooltip-arrow has-tooltip-bottom"  href="https://github.com/wildiness/NodeSharer/archive/master.zip" download data-tooltip="Download Blender Add-On">
+           <strong> NS'er Add-On </strong>
           </a>
-          
+          <a class="button is-light has-tooltip-arrow has-tooltip-bottom"  href="https://github.com/nodeshareio/nodeshareio-addon/archive/master.zip" download data-tooltip="Download Blender Add-On">
+           <strong> NSio Add-On </strong>
+          </a>
           {% if current_user.is_authenticated %}
           
             <a class="button is-light" href="{{ url_for('site.profile', id=current_user.id) }}">

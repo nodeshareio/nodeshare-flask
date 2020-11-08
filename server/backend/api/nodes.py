@@ -6,7 +6,7 @@ from backend import app, db, mqtt
 from backend.api.auth import token_auth
 import json
 from werkzeug.http import HTTP_STATUS_CODES
-import os 
+import os
 from werkzeug.utils import secure_filename
 import re
 
@@ -15,7 +15,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def get_node_id_from_preview_filename(filename): 
+def get_node_id_from_preview_filename(filename):
     print(f"Retreiving Node ID from {filename}")
     return int(re.findall(r'[0-9]+', filename)[0])
 
@@ -41,8 +41,8 @@ def submit_node():
         return bad_request('must include nodetext')
     if Node.query.filter_by(data=data['ns_string']).first():
         return bad_request('[  ERROR  ]  node text exists')
-    print("[  INFO  ]  submit request")  
-    print(f"[  NODE TEXT  ]  {data['ns_string']}")  
+    print("[  INFO  ]  submit request")
+    print(f"[  NODE TEXT  ]  {data['ns_string']}")
     node = Node()
     node.from_dict(data, approved=False)
     node.sample_path = "default_preview.webm"
@@ -53,25 +53,26 @@ def submit_node():
         template = '{{"node_id": "{node_id}", "node_text": "{node_text}" }}'
         payload = template.format(node_id = node.id, node_text=node.data)
         mqtt.publish('nodeshare/submit', payload) #json string
+        res_msg = {'success':'node submitted'}
     except:
         print("[  INFO  ] DB Commit Failure: Node not submitted")
-    res_msg = {'success':'node submitted'}
-    response = jsonify(res_msg)   
+        res_msg = {'error':'node was not submitted'}
+
+    response = jsonify(res_msg)
     response.status_code = 201
     return response
 
 @api.route('/approve', methods=['POST'])
 @token_auth.login_required
 def approve_node():
-    
     data = json.loads(request.data) or json.loads('{"error": "no data"}')
     print(f"approved  data: {data}")
     if 'ns_string' not in data:
         return bad_request('Node Text Required!')
     if 'node_id' not in data:
         return bad_request('ID Required!')
-    print("[  INFO  ]  Node Approved")  
-    print(f"[  APPROVED NODE TEXT  ]  {data['ns_string']}")  
+    print("[  INFO  ]  Node Approved")
+    print(f"[  APPROVED NODE TEXT  ]  {data['ns_string']}")
     node = Node.query.get(int(data['node_id']))
     node.approved = True
     try:
@@ -80,14 +81,14 @@ def approve_node():
         print("[  INFO  ] DB Commit Failure: Node not submitted")
     response = jsonify(data)
     response.status_code = 201
-    return response 
+    return response
 
 @api.route("/preview/<filename>", methods=["POST"])
 @token_auth.login_required
 def upload_preview(filename):
     """Upload a file."""
     status_code = 201 #wishful thinking
-    
+
     if "/" in filename:
         data = {'error':'no subdirectories allowed'}
         response = jsonify(data)

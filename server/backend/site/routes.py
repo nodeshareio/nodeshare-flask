@@ -58,7 +58,7 @@ def submit_node():
         db.session.commit()
         template = '{{"node_id": "{node_id}", "node_text": "{node_text}" }}'
         payload = template.format(node_id = node.id, node_text=node.data)
-        mqtt.publish('nodeshare/submit', payload) 
+        mqtt.publish('nodeshare/submit', payload)
         flash(f'{node.title} submitted!', 'success')
         return redirect(url_for('site.profile', id = current_user.id))
     return render_template('submit_node.html', form=form)

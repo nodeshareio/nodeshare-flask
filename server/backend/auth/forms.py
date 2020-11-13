@@ -49,3 +49,9 @@ class ResetPasswordForm(FlaskForm):
 class NewUserRequestForm(FlaskForm):
     email = StringField('Email', [validators.DataRequired(), validators.Email()])
     submit = SubmitField('Send New User Request')
+
+
+class DisplayNameForm(FlaskForm):
+    display_name = StringField('Display Name', [validators.DataRequired()])
+    submit = SubmitField('Sign in with Google')
+

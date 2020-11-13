@@ -1,4 +1,4 @@
-from flask import flash, url_for, redirect
+from flask import flash, url_for, redirect, session
 from flask_login import current_user, login_user
 from flask_dance.contrib.google import make_google_blueprint
 from flask_dance.consumer import oauth_authorized, oauth_error
@@ -29,8 +29,11 @@ def google_logged_in(blueprint, token):
 
     google_info = resp.json()
     google_user_id = str(google_info["id"])
-
-
+    
+    if 'display_name' in session:
+        display_name =  session['display_name']
+    else: 
+        display_name = None
 
     # Find this OAuth token in the database, or create it
     query = OAuth.query.filter_by(
@@ -63,15 +66,15 @@ def google_logged_in(blueprint, token):
             # OK because they can merge those accounts later.
             
             # Make sure email in not already registered due to unique constraint
-            if User.query.filter_by(email=google_info['email']).first():
-                flash("Email already registered")
-                return redirect(url_for('auth.login'))
-            user = User(username=google_info["email"], email=google_info["email"] )
-            oauth.user = user
-            db.session.add_all([user, oauth])
-            db.session.commit()
-            login_user(user)
-            flash("Successfully signed in with Google.")
+            if display_name:
+                user = User(username=display_name, email=google_info["email"] )
+                oauth.user = user
+                db.session.add_all([user, oauth])
+                db.session.commit()
+                login_user(user)
+                flash("Successfully signed in with Google.")
+            else:
+                return redirect(url_for('auth.register'))
     else:
         if oauth.user:
             # If the user is logged in and the token is linked, check if these

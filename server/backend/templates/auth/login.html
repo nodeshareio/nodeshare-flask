@@ -2,11 +2,16 @@
 {% extends 'layouts/layout.html' %}
 
 {% block body %}
+<style>
+    .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>
 <div class="columns" style="padding-top: 2rem;">
     <div class="column"style="z-index: 1;">
-        <ul>
-            <li><a href='{{ url_for("google.login") }}'>Login with Google</a></li>
-          </ul>
+
         <section >
             <form action="" method="post">
                 <div class="card  shade">
@@ -15,38 +20,58 @@
                         Login: 
                     </div>
                     <div class="card-content">
-                        
-                        <div class="field">
-                            <label class="label">{{ form.email.label }}</label>
-                            {{ form.email(class="control") }}
-                            {% for error in form.email.errors %}
-                                <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">{{ form.email.label }}</label>
+                                    {{ form.email(class="control") }}
+                                    {% for error in form.email.errors %}
+                                        <span style="color: red;">[{{ error }}]</span>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="field">
+                                    <label class="label"> {{ form.password.label }}</label>
+                                    {{ form.password(class="control") }}
+                                    {% for error in form.password.errors %}
+                                        <span style="color: red;">[{{ error }}]</span>
+                                    {% endfor %}
+
+                                </div>
+
+                                <div>
+                                    <p>Forgot Your Password?<a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a></p>
+                                </div>
+
+                                <div class="field ">
+                                    {{ form.submit(class="control") }}
+                                </div>
+                            </div>
+                            
+                            <div class="column">
+
+                    
+                                <a href="{{ url_for('google.login') }}">
+
+                                    <span class="tag is-large button" >
+                                        <span class="icon tag" >
+                                            <i class="fab fa-google"></i>
+                                        </span> 
+                                       <p> Login with Google!</p>
+                                    </span>
+                            
+                                </a>
+
+                            </div>
                         </div>
 
-                        <div class="field">
-                            <label class="label"> {{ form.password.label }}</label>
-                            {{ form.password(class="control") }}
-                            {% for error in form.password.errors %}
-                                <span style="color: red;">[{{ error }}]</span>
-                            {% endfor %}
-
-                        </div>
-
-                        <div>
-                            <p>Forgot Your Password?<a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a></p>
-                        </div>
-
-                        <div class="field ">
-                            {{ form.submit(class="control") }}
-                        </div>
                     </div>
                 </div>
             </form>
         </section>
     </div>
     <div class="column">
-        
+      
     </div>
 </div>
 {% endblock %}

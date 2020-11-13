@@ -1,9 +1,9 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user
 from backend import db, app, role_required
 from backend.auth import auth
-from backend.auth.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm, RegistrationForm, NewUserRequestForm
+from backend.auth.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm, RegistrationForm, NewUserRequestForm, DisplayNameForm
 from backend.models import User, UserRoles
 from backend.auth.email import send_password_reset_email, send_new_user_request_email
 
@@ -47,6 +47,16 @@ def login():
         flash('You are now logged in', 'success')
         return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
+
+@auth.route('/oauth_display_name', methods=['POST'])   
+def oauth_display_name():
+    # TEST ONLY - VALIDATE TEXT BEFORE PRODUCTION
+    display_name = request.form['display_name']
+    if display_name:
+        session['display_name'] = display_name 
+        return redirect(url_for('google.login'))
+    return redirect(url_for('auth.register'))
+
 
 
 # Logout

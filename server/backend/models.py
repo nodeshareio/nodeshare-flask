@@ -8,7 +8,8 @@ import jwt
 from backend import db, login, app
 import base64
 import os
-
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 
 
@@ -178,6 +179,15 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    __table_args__ = (db.UniqueConstraint("provider", "provider_user_id"),)
+    provider_user_id = db.Column(db.String(256), nullable=False)
+    provider_user_login = db.Column(db.String(256), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user = db.relationship(User,backref=db.backref("oauth", collection_class=attribute_mapped_collection("provider"),
+            cascade="all, delete-orphan"))
 
 
 class Role(db.Model):

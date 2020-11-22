@@ -17,13 +17,17 @@ import eventlet
 from flask import Flask
 from flask_mqtt import Mqtt
 
+'''
+DEV ONLY - disable in production!!!!!!
+'''
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
 
 '''
 UTILS
 '''
-
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -53,6 +57,9 @@ app.config['MQTT_USERNAME'] = os.environ.get('MQTT_USERNAME')
 app.config['MQTT_PASSWORD'] = os.environ.get('MQTT_PASSWORD')
 app.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
 app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'static/media/')
+app.config['GOOGLE_OAUTH_CLIENT_ID'] = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+app.config['GOOGLE_OAUTH_CLIENT_SECRET'] = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+
 
 '''
 INSTANTIATE PLUGINS
@@ -128,7 +135,7 @@ from backend.api import api
 from backend.admin import admin
 from backend.auth import auth 
 from backend.errors import err 
-
+from backend.oauth import google_blueprint
 
 '''
 REGISTER BLUEPRINTS
@@ -139,4 +146,4 @@ app.register_blueprint(api, url_prefix='/api')
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(admin, url_prefix='/admin')
 app.register_blueprint(err, url_prefix='/error')
-
+app.register_blueprint(google_blueprint, url_prefix="/login")

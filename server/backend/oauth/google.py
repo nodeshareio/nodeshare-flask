@@ -67,12 +67,18 @@ def google_logged_in(blueprint, token):
             
             # Make sure email in not already registered due to unique constraint
             if display_name:
-                user = User(username=display_name, email=google_info["email"] )
-                oauth.user = user
-                db.session.add_all([user, oauth])
-                db.session.commit()
-                login_user(user)
-                flash("Successfully signed in with Google.")
+                user = User.query.filter_by(email=google_info["email"]).first()
+                if user:                
+                    flash("Account already registered, would you like to merge?")
+                    url = url_for("auth.merge", username=user.username)
+                    return redirect(url)
+                else:    
+                    user = User(username=display_name, email=google_info["email"] )
+                    oauth.user = user
+                    db.session.add_all([user, oauth])
+                    db.session.commit()
+                    login_user(user)
+                    flash("Successfully signed in with Google.")
             else:
                 return redirect(url_for('auth.register'))
     else:

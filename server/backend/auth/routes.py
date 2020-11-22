@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from backend import db, app, role_required
 from backend.auth import auth
 from backend.auth.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm, RegistrationForm, NewUserRequestForm, DisplayNameForm
@@ -57,6 +57,32 @@ def oauth_display_name():
         return redirect(url_for('google.login'))
     return redirect(url_for('auth.register'))
 
+@auth.route("/merge", methods=("GET", "POST"))
+@login_required
+def merge():
+    form = LoginForm(data={"email": request.args.get("email")})
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            if user != current_user:
+                merge_users(current_user, user)
+                flash(
+                    "User {email} has been merged into your account".format(
+                        email=user.email
+                    )
+                )
+                return redirect(url_for("site.nodes"))
+            else:
+                form.email.errors.append("Cannot merge with yourself")
+    return render_template("auth/merge.html", form=form)
+
+
+def merge_users(merge_into, merge_from):
+    assert merge_into != merge_from
+    OAuth.query.filter_by(user=merge_from).update({"user_id": merge_into.id})
+    db.session.delete(merge_from)
+    db.session.commit()
+    return merge_into
 
 
 # Logout

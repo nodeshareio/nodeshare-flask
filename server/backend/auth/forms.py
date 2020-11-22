@@ -55,3 +55,10 @@ class DisplayNameForm(FlaskForm):
     display_name = StringField('Display Name', [validators.DataRequired()])
     submit = SubmitField('Sign in with Google')
 
+class MergeForm(FlaskForm):
+    email = StringField(
+        'Email', [validators.DataRequired(), validators.Email()])
+    password = PasswordField('Password', [validators.DataRequired()])
+    confirm = PasswordField('Confirm Password', [validators.DataRequired(
+    ), validators.EqualTo('password', message='Passwords do not match')])
+    submit = SubmitField('Merge with Google OAuth Account')

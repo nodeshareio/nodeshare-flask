@@ -3,7 +3,7 @@ from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user, login_required
 from backend import db, app, role_required
 from backend.auth import auth
-from backend.auth.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm, RegistrationForm, NewUserRequestForm, DisplayNameForm
+from backend.auth.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm, RegistrationForm, NewUserRequestForm, DisplayNameForm, MergeForm
 from backend.models import User, UserRoles
 from backend.auth.email import send_password_reset_email, send_new_user_request_email
 
@@ -35,7 +35,13 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is None or not user.check_password(form.password.data):
+        if user is None:
+            flash('User does not exist!', 'warning')
+            return redirect(url_for('auth.login'))
+        if user.password_hash is None:
+            flash('OAuth Account Exists, login with Google and merge via user settings to create a unique password', 'warning')
+            return redirect(url_for('auth.login'))
+        if not user.check_password(form.password.data):
             flash('Invalid email or password', 'warning')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
@@ -76,6 +82,26 @@ def merge():
                 form.email.errors.append("Cannot merge with yourself")
     return render_template("auth/merge.html", form=form)
 
+@auth.route("/merge_google_with_account", methods=("GET", "POST"))
+@login_required
+def merge_google_with_account():
+    form = MergeForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            if user == current_user:
+                user.set_password(form.password.data)
+                login_user(user)
+                db.session.commit()
+                flash(
+                    "User {username} has been merged into your account".format(
+                        username=user.username
+                    )
+                )
+                return redirect(url_for("site.nodes"))
+            else:
+                form.email.errors.append("Use your Google Email or create a new account")
+    return render_template("auth/merge_google_with_account.html", form=form)
 
 def merge_users(merge_into, merge_from):
     assert merge_into != merge_from

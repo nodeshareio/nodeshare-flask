@@ -43,6 +43,16 @@
               <p class="card-header-title">
                  {{user.username}}'s Submitted Nodes 
               </p>
+              
+              {% if current_user.is_authenticated %}
+                {% if user.username == current_user.username %}
+                  {% if not user.password_hash %}
+                    <a class="button is-dark" href="{{ url_for('auth.merge_google_with_account') }}">
+                      Merge
+                    </a>
+                  {% endif %}
+                {% endif %}
+              {% endif %}
 
             </header>
             
